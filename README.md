@@ -1,73 +1,84 @@
-Clinisight AI 🚀
-AI-Powered Medical Diagnosis API using FastAPI + PubMed
+# Clinisight AI 🚀
+AI-powered symptom-to-diagnosis API built with **FastAPI** and modular Python functions.
 
-🎯 What it does
-Send symptoms → Get AI diagnosis + PubMed research + summary in seconds!
+## What this project does
 
-text
-"I have chest pain and fever"
-↓
-🔍 Extracts: ["chest", "pain", "fever"]
-🤖 Diagnosis: "Possible pneumonia/flu/COVID"
-📚 PubMed articles (3 latest)
-📝 AI summary
+- Takes a free-text symptom description from a user (for example, “chest pain and fever”).  
+- Extracts structured symptoms using a symptom extraction function.  
+- Generates a possible diagnosis using a diagnostic function.  
+- Searches PubMed for relevant articles about the symptoms or diagnosis.  
+- Summarizes the retrieved PubMed content into a concise, readable summary.
 
-🚀 Quick Start
-bash
-# Clone
+All of this is exposed via a simple HTTP API so it can be called from any frontend, script, or tool.
+
+## Quick start
+
+```bash
+# Clone the repository
 git clone https://github.com/rkumarus040599/prk-mcp-clinisight-ai-v1.git
 cd prk-mcp-clinisight-ai-v1
 
-# Install
-uv sync  # or pip install -r requirements.txt
+# (Optional) create and activate a virtual environment
 
-# Run
-uv run uvicorn app:app --host 127.0.0.1 --port 8081 --reload
-Open: http://localhost:8081/docs 👈 Interactive tester!
+# Install dependencies
+pip install -r requirements.txt
 
-🔬 API Endpoints
-Method	Endpoint	Description
-GET	/	Welcome + docs
-POST	/diagnose	Core: Symptoms → Diagnosis + Research
-Try it now!
-bash
-curl -X POST "http://localhost:8081/diagnose" \
-  -H "Content-Type: application/json" \
-  -d '{"description": "headache fever cough"}'
-Response:
+# Run the FastAPI app
+uvicorn app:app --host 127.0.0.1 --port 8081 --reload
 
-json
+
+Then open:
+Docs UI: http://127.0.0.1:8081/docs
+Root endpoint: http://127.0.0.1:8081/
+
+
+API endpoints
+
+| Method | Path      | Description                          |
+| ------ | --------- | ------------------------------------ |
+| GET    | /         | Health check and basic info.         |
+| POST   | /diagnose | Core endpoint: symptoms → diagnosis. |
+
+
+Request: POST /diagnose
+Body (JSON):
+
 {
-  "symptoms": ["headache", "fever", "cough"],
-  "diagnosis": "Possible flu/viral infection",
-  "pubmed_articles": ["Article 1...", "Article 2..."],
-  "summary": "Research shows flu symptoms match..."
+  "description": "I have chest pain and fever"
 }
-🏗️ Architecture
-text
-User Request → FastAPI → [4 AI Functions] → JSON Response
-├── extract_symptoms()     # NLP: Parse text → symptoms list
-├── get_diagnosis()        # ML: Symptoms → possible conditions
-├── search_pubmed()        # API: Latest medical research
-└── summarize_text()       # LLM: Summarize articles
-📁 Project Structure
-text
+Response (JSON shape):
+
+{
+  "symptoms": ["chest pain", "fever"],
+  "diagnosis": "Possible pneumonia or flu",
+  "pubmed_articles": "...",
+  "summary": "Short summary of relevant PubMed content."
+}
+
+The exact values depend on the logic in the functions module.
+
+Project structure:
+
 prk-mcp-clinisight-ai-v1/
-├── app.py                 # FastAPI server
-├── functions/             # Your AI modules
-│   ├── diagnosis_symptoms.py
-│   ├── pubmed_articles.py
-│   ├── summarize_pubmed.py
-│   └── symptom_extractor.py
-├── requirements.txt       # Dependencies
-└── .gitignore            # Clean repo
-🔧 Tech Stack
-Backend: FastAPI (auto-docs, type-safe)
+├── app.py                      # FastAPI app: exposes the /diagnose endpoint
+├── functions/
+│   ├── __init__.py
+│   ├── diagnosis_symptoms.py   # get_diagnosis(symptoms)
+│   ├── pubmed_articles.py      # search_pubmed(query)
+│   ├── summarize_pubmed.py     # summarize_text(text)
+│   └── symptom_extractor.py    # extract_symptoms(description)
+├── requirements.txt
+└── README.md
 
-AI/ML: Your custom functions (NLP + diagnosis)
 
-Research: PubMed API integration
+app.py wires HTTP requests into your Python functions.
 
-Deployment-ready: Uvicorn server
+The functions package holds the core logic (NLP, diagnosis, PubMed search, summarization).
 
-🚀 Deploy to Production
+How it fits in the “big picture”
+Backend: FastAPI provides the HTTP server and JSON API.
+Core logic: Your existing Python functions do the real work.
+Integration point: Any frontend (web, CLI, MCP tool, etc.) can send a POST request to /diagnose and receive structured diagnostic output plus supporting literature.
+This makes Clinisight AI a small, focused backend service that can be reused in larger AI or clinical tooling workflows.
+
+
